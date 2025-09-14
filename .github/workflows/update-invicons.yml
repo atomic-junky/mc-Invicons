@@ -26,8 +26,10 @@ jobs:
         run: |
           set -euo pipefail
           # Clean old icons to avoid duplicates and name-change issues
-          rm -rf icons32 icons64
-          mkdir -p icons32 icons64
+          rm -rf icons32 icons64 icons128 icons256 icons512
+          mkdir -p icons32 icons64 icons128 icons256 icons512
+          
+          overrides_json=$(cat name_overrides.json)
 
           for f in mc-assets/item-assets/*.png; do
             [ -e "$f" ] || continue
@@ -42,12 +44,21 @@ jobs:
             }')
             
             proper="${base// /_}"
+
+            # Apply override from JSON if exists
+            override=$(echo "$overrides_json" | jq -r --arg key "$proper" '.[$key] // empty')
+            if [ -n "$override" ]; then
+              proper="$override"
+            fi
           
             newname="Invicon_${proper}.png"
           
             # Resize images
             convert "$f" -filter Point -resize 32x32 "icons32/$newname"
             convert "$f" -filter Point -resize 64x64 "icons64/$newname"
+            convert "$f" -filter Point -resize 128x128 "icons128/$newname"
+            convert "$f" -filter Point -resize 256x256 "icons256/$newname"
+            convert "$f" -filter Point -resize 512x512 "icons512/$newname"
           done
 
       - name: Commit & push changes
