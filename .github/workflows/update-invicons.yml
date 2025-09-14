@@ -71,15 +71,37 @@ jobs:
           
           # Stage all changes
           git add -A
-          git commit -m "Update Minecraft Invicon sprites (32x32 and 64x64)" || echo "No changes to commit"
+          git commit -m "Update Minecraft Invicon" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload icons artifacts
+      - name: Upload icons32 artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: invicon-icons
-          path: |
-            icons32
-            icons64
+          name: icons32
+          path: icons32
+
+      - name: Upload icons64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: icons64
+          path: icons64
+
+      - name: Upload icons128 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: icons128
+          path: icons128
+          
+      - name: Upload icons256 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: icons256
+          path: icons256
+          
+      - name: Upload icons512 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: icons512
+          path: icons512
