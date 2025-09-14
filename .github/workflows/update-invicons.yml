@@ -1,0 +1,42 @@
+name: Update All Minecraft Invicon
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  update-icons:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Clone mc-assets repo
+        run: git clone https://github.com/Owen1212055/mc-assets.git
+
+      - name: Copy, rename & resize Invicon sprites
+        run: |
+          mkdir -p icons
+          for f in mc-assets/items/*.png; do
+            base=$(basename "$f" .png) # ex: ACACIA_BOAT
+            # Mettre chaque mot en Capitalized (Acacia_Boat)
+            proper=$(echo "$base" | sed -E 's/(^|_)([A-Za-z])/\1\u\2/g')
+            newname="Invicon_${proper}.png"
+            # Resize à 32x32
+            convert "$f" -resize 32x32 "icons/$newname"
+          done
+
+      - name: Commit & push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add icons/*
+          git commit -m "Update Minecraft Invicon sprites" || echo "No changes"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
