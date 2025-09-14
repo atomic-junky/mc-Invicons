@@ -31,19 +31,17 @@ jobs:
 
           for f in mc-assets/item-assets/*.png; do
             [ -e "$f" ] || continue
-            base=$(basename "$f" .png) # ACACIA_BOAT ou Oak Log
-          
-            # Step 1: Replace spaces with underscores
-            base="${base// /_}"
-          
-            # Step 2 & 3: lowercase + capitalize first letter of each word
-            proper=$(echo "$base" | awk -F'_' '{
+            base=$(basename "$f" .png)
+            
+            base=$(echo "$base" | awk -F'_' '{
               for(i=1;i<=NF;i++){
                 $i=tolower($i);
                 $i=toupper(substr($i,1,1)) substr($i,2)
               }
               OFS="_"; print
             }')
+            
+            proper="${base// /_}"
           
             newname="Invicon_${proper}.png"
           
@@ -60,7 +58,7 @@ jobs:
           # Remove mc-assets folder so it is not committed
           rm -rf mc-assets
           
-          # Stage all changes (including deletions)
+          # Stage all changes
           git add -A
           git commit -m "Update Minecraft Invicon sprites (32x32 and 64x64)" || echo "No changes to commit"
           git push
