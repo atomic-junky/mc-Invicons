@@ -31,14 +31,14 @@ jobs:
             proper=$(echo "$base" | sed -E 's/(^|_)([A-Za-z])/\1\u\2/g')
             newname="Invicon_${proper}.png"
             # Resize à 32x32
-            convert "$f" -resize 32x32 "icons32/$newname"
+            convert "$f" -filter Point -resize 32x32 "icons32/$newname"
           done
 
       - name: Commit & push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add icons/*
+          git add icons32/*
           git commit -m "Update Minecraft Invicon sprites" || echo "No changes"
           git push
         env:
@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: invicon-icons
-          path: icons
+          path: icons32
