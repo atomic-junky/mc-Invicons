@@ -24,14 +24,14 @@ jobs:
 
       - name: Copy, rename & resize Invicon sprites
         run: |
-          mkdir -p icons
-          for f in mc-assets/items/*.png; do
+          mkdir -p icons32
+          for f in mc-assets/item-assets/*.png; do
             base=$(basename "$f" .png) # ex: ACACIA_BOAT
             # Mettre chaque mot en Capitalized (Acacia_Boat)
             proper=$(echo "$base" | sed -E 's/(^|_)([A-Za-z])/\1\u\2/g')
             newname="Invicon_${proper}.png"
             # Resize à 32x32
-            convert "$f" -resize 32x32 "icons/$newname"
+            convert "$f" -resize 32x32 "icons32/$newname"
           done
 
       - name: Commit & push changes
