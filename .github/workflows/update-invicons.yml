@@ -56,6 +56,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # Remove mc-assets folder so it is not committed
+          rm -rf mc-assets
+          
           # Stage all changes (including deletions)
           git add -A
           git commit -m "Update Minecraft Invicon sprites (32x32 and 64x64)" || echo "No changes to commit"
