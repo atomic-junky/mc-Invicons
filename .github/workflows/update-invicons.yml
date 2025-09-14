@@ -61,18 +61,25 @@ jobs:
             convert "$f" -filter Point -resize 512x512 "icons512/$newname"
           done
 
-      - name: Commit & push changes
+      - name: Commit & push only changed files
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           # Remove mc-assets folder so it is not committed
           rm -rf mc-assets
-          
-          # Stage all changes
-          git add -A
-          git commit -m "Update Minecraft Invicon" || echo "No changes to commit"
-          git push
+
+          # Check for changed files
+          changed_files=$(git status --porcelain | awk '{print $2}')
+
+          if [ -n "$changed_files" ]; then
+            # Stage only changed files
+            git add $changed_files
+            git commit -m "Update Minecraft Invicon"
+            git push
+          else
+            echo "No changed files to commit, skipping push"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
