@@ -13,11 +13,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Checkout mc-assets repo
+        uses: actions/checkout@v3
+        with:
+          repository: Owen1212055/mc-assets
+          path: mc-assets
+
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
-
-      - name: Clone mc-assets repo
-        run: git clone https://github.com/Owen1212055/mc-assets.git
 
       - name: Copy, rename & resize Invicon sprites
         run: |
@@ -40,3 +43,9 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload icons artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: invicon-icons
+          path: icons
