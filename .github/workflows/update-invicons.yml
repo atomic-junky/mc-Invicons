@@ -24,28 +24,46 @@ jobs:
 
       - name: Copy, rename & resize Invicon sprites
         run: |
-          mkdir -p icons32
+          set -euo pipefail
+          # Clean old icons to avoid duplicates and name-change issues
+          rm -rf icons32 icons64
+          mkdir -p icons32 icons64
+
           for f in mc-assets/item-assets/*.png; do
+            [ -e "$f" ] || continue
             base=$(basename "$f" .png) # ex: ACACIA_BOAT
-            # Mettre chaque mot en Capitalized (Acacia_Boat)
-            proper=$(echo "$base" | sed -E 's/(^|_)([A-Za-z])/\1\u\2/g')
+
+            # Make each word Capitalized (Acacia_Boat)
+            proper=$(echo "$base" | awk -F'_' '{
+              for(i=1;i<=NF;i++){
+                $i=tolower($i);
+                $i=toupper(substr($i,1,1)) substr($i,2)
+              }
+              OFS="_"; print
+            }')
+
             newname="Invicon_${proper}.png"
-            # Resize à 32x32
+            # Resize to 32x32
             convert "$f" -filter Point -resize 32x32 "icons32/$newname"
+            # Resize to 64x64
+            convert "$f" -filter Point -resize 64x64 "icons64/$newname"
           done
 
       - name: Commit & push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add icons32/*
-          git commit -m "Update Minecraft Invicon sprites" || echo "No changes"
+          # Stage all changes (including deletions)
+          git add -A
+          git commit -m "Update Minecraft Invicon sprites (32x32 and 64x64)" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload icons artifact
+      - name: Upload icons artifacts
         uses: actions/upload-artifact@v4
         with:
           name: invicon-icons
-          path: icons32
+          path: |
+            icons32
+            icons64
